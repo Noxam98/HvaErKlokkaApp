@@ -119,8 +119,10 @@ const Word = styled.span`
 const ActionButton = styled(Button)`
   background: #27ae60;
   box-shadow: 0 4px 0 #2ecc71;
-  grid-column: span 3;
-  margin-top: 1rem;
+  width: 100%;
+  margin-top: 2rem;
+  padding: 1.5rem;
+  font-size: 1.5rem;
 
   &:hover {
     background: #2ecc71;
@@ -165,29 +167,31 @@ const Controls = () => {
       </Feedback>
 
       <MainGrid>
-        {/* Prepositions & Specials */}
-        <CategoryLabel>Ord</CategoryLabel>
-        <Section style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
-          {/* Prepositions */}
-          {prepositions.map(word => (
-            <SecondaryButton key={word} onClick={() => handleWordClick(word)}>{word}</SecondaryButton>
-          ))}
-          {/* Specials */}
-          {["kvart", "halv"].map(word => (
-            <SecondaryButton key={word} onClick={() => handleWordClick(word)}>{word}</SecondaryButton>
-          ))}
-        </Section>
-
-        {/* Minutes / Numbers / Hours (1-12) */}
-        <CategoryLabel>Tall / Timer</CategoryLabel>
-        <Section style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
-          {hours.map(word => (
-            <Button key={word} onClick={() => handleWordClick(word)}>{word}</Button>
-          ))}
-        </Section>
-
-        {gameState === 'WON' && (
+        {gameState === 'WON' ? (
           <ActionButton onClick={resetGame}>Neste oppgave</ActionButton>
+        ) : (
+          <>
+            {/* Prepositions & Specials */}
+            <CategoryLabel>Ord</CategoryLabel>
+            <Section style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
+              {/* Prepositions */}
+              {prepositions.map(word => (
+                <SecondaryButton key={word} onClick={() => handleWordClick(word)}>{word}</SecondaryButton>
+              ))}
+              {/* Specials */}
+              {["kvart", "halv"].map(word => (
+                <SecondaryButton key={word} onClick={() => handleWordClick(word)}>{word}</SecondaryButton>
+              ))}
+            </Section>
+
+            {/* Minutes / Numbers / Hours (1-12) */}
+            <CategoryLabel>Tall / Timer</CategoryLabel>
+            <Section style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
+              {hours.map(word => (
+                <Button key={word} onClick={() => handleWordClick(word)}>{word}</Button>
+              ))}
+            </Section>
+          </>
         )}
       </MainGrid>
     </ControlsContainer>
