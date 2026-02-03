@@ -251,8 +251,11 @@ const HintOverlay = ({ show }) => {
       {/* Kvart Over (90 +/- w) */}
       <path d={describeSector(cx, cy, rInner, rOuter, 90 - markerW, 90 + markerW)} fill="#3498db" />
       <text x={posKvartOver.x} y={posKvartOver.y}
-        fill="#fff" fontSize="10" fontWeight="bold" textAnchor="middle" dominantBaseline="middle"
-        transform={`rotate(0, ${posKvartOver.x}, ${posKvartOver.y})`}>KVART</text>
+        fill="#fff" fontSize="9" fontWeight="bold" textAnchor="middle" dominantBaseline="middle"
+        transform={`rotate(0, ${posKvartOver.x}, ${posKvartOver.y})`}>
+        <tspan x={posKvartOver.x} dy="-0.6em">KVART</tspan>
+        <tspan x={posKvartOver.x} dy="1.2em">OVER</tspan>
+      </text>
 
       {/* Halv (180 +/- w) */}
       <path d={describeSector(cx, cy, rInner, rOuter, 180 - markerW, 180 + markerW)} fill="#3498db" />
@@ -263,8 +266,11 @@ const HintOverlay = ({ show }) => {
       {/* Kvart På (270 +/- w) */}
       <path d={describeSector(cx, cy, rInner, rOuter, 270 - markerW, 270 + markerW)} fill="#3498db" />
       <text x={posKvartPa.x} y={posKvartPa.y}
-        fill="#fff" fontSize="10" fontWeight="bold" textAnchor="middle" dominantBaseline="middle"
-        transform={`rotate(0, ${posKvartPa.x}, ${posKvartPa.y})`}>KVART</text>
+        fill="#fff" fontSize="9" fontWeight="bold" textAnchor="middle" dominantBaseline="middle"
+        transform={`rotate(0, ${posKvartPa.x}, ${posKvartPa.y})`}>
+        <tspan x={posKvartPa.x} dy="-0.6em">KVART</tspan>
+        <tspan x={posKvartPa.x} dy="1.2em">PÅ</tspan>
+      </text>
     </StyledHintSVG>
   );
 };
