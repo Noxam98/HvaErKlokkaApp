@@ -1,5 +1,5 @@
 import React from 'react';
-import styled from 'styled-components';
+import styled, { keyframes, css } from 'styled-components';
 import useGameStore from '../store/useGameStore';
 import { hours, minutes, prepositions } from '../utils/timeUtils';
 
@@ -66,9 +66,15 @@ const CategoryLabel = styled.div`
   font-weight: 600;
 `;
 
+const shake = keyframes`
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+  20%, 40%, 60%, 80% { transform: translateX(5px); }
+`;
+
 const Button = styled.button`
-  background: ${props => props.theme.buttonBg};
-  color: ${props => props.theme.buttonText};
+  background: ${props => props.$error ? '#e74c3c' : props.theme.buttonBg};
+  color: ${props => props.$error ? 'white' : props.theme.buttonText};
   border: none;
   padding: 0.8rem;
   border-radius: 8px;
@@ -76,7 +82,8 @@ const Button = styled.button`
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
-  box-shadow: 0 2px 0 ${props => props.theme.buttonShadow};
+  box-shadow: 0 2px 0 ${props => props.$error ? '#c0392b' : props.theme.buttonShadow};
+  animation: ${props => props.$error ? css`${shake} 0.5s` : 'none'};
 
   @media (max-width: 400px) {
     padding: 0.5rem;
@@ -89,7 +96,7 @@ const Button = styled.button`
   }
 
   &:hover {
-    background: ${props => props.theme.buttonHover};
+    background: ${props => props.$error ? '#c0392b' : props.theme.buttonHover};
   }
 
   &:disabled {
@@ -114,8 +121,6 @@ const Word = styled.span`
   }
 `;
 
-
-
 const ActionButton = styled(Button)`
   background: #27ae60;
   box-shadow: 0 4px 0 #2ecc71;
@@ -137,11 +142,11 @@ const Feedback = styled.div`
 `;
 
 const SecondaryButton = styled(Button)`
-  background: ${props => props.theme.secondaryButtonBg};
-  box-shadow: 0 4px 0 rgba(0,0,0,0.2);
+  background: ${props => props.$error ? '#e74c3c' : props.theme.secondaryButtonBg};
+  box-shadow: 0 4px 0 ${props => props.$error ? '#c0392b' : 'rgba(0,0,0,0.2)'};
 
   &:hover {
-    background: ${props => props.theme.secondaryButtonHover};
+    background: ${props => props.$error ? '#c0392b' : props.theme.secondaryButtonHover};
   }
 `;
 
@@ -152,6 +157,8 @@ const Controls = () => {
     if (gameState !== 'PLAYING') return;
     addWord(word);
   };
+
+  const isError = gameState === 'ERROR';
 
   return (
     <ControlsContainer>
@@ -176,11 +183,11 @@ const Controls = () => {
             <Section style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
               {/* Prepositions */}
               {prepositions.map(word => (
-                <SecondaryButton key={word} onClick={() => handleWordClick(word)}>{word}</SecondaryButton>
+                <SecondaryButton key={word} onClick={() => handleWordClick(word)} $error={isError}>{word}</SecondaryButton>
               ))}
               {/* Specials */}
               {["kvart", "halv"].map(word => (
-                <SecondaryButton key={word} onClick={() => handleWordClick(word)}>{word}</SecondaryButton>
+                <SecondaryButton key={word} onClick={() => handleWordClick(word)} $error={isError}>{word}</SecondaryButton>
               ))}
             </Section>
 
@@ -188,7 +195,7 @@ const Controls = () => {
             <CategoryLabel>Tall / Timer</CategoryLabel>
             <Section style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
               {hours.map(word => (
-                <Button key={word} onClick={() => handleWordClick(word)}>{word}</Button>
+                <Button key={word} onClick={() => handleWordClick(word)} $error={isError}>{word}</Button>
               ))}
             </Section>
           </>

@@ -68,15 +68,27 @@ const SubHeader = styled.p`
   }
 `;
 
-const ThemeToggle = styled.button`
+const HeaderControls = styled.div`
   position: absolute;
   top: 1rem;
   right: 1rem;
+  display: flex;
+  gap: 1rem;
+  z-index: 100;
+`;
+
+const IconButton = styled.button`
   background: none;
   border: none;
   font-size: 1.5rem;
   cursor: pointer;
   color: ${props => props.theme.text};
+  padding: 0;
+  transition: transform 0.2s;
+
+  &:hover {
+    transform: scale(1.1);
+  }
 `;
 
 const DebugInfo = styled.div`
@@ -96,12 +108,29 @@ function App() {
     initializeGame();
   }, []);
 
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(err => {
+        console.error(`Error attempting to enable fullscreen: ${err.message}`);
+      });
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+    }
+  };
+
   return (
     <ThemeProvider theme={isDarkMode ? darkTheme : lightTheme}>
       <GlobalStyle />
-      <ThemeToggle onClick={toggleTheme}>
-        {isDarkMode ? '☀️' : '🌙'}
-      </ThemeToggle>
+      <HeaderControls>
+        <IconButton onClick={toggleFullscreen} title="Fullskjerm">
+          ⛶
+        </IconButton>
+        <IconButton onClick={toggleTheme} title="Bytt tema">
+          {isDarkMode ? '☀️' : '🌙'}
+        </IconButton>
+      </HeaderControls>
       <AppContainer>
         <Header>Hva er klokka på norsk?</Header>
 
