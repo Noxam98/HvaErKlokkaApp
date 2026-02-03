@@ -1,22 +1,14 @@
 import React from 'react';
 import styled from 'styled-components';
 
-const ClockContainer = styled.div`
+const ClockWrapper = styled.div`
   width: 300px;
   height: 300px;
-  border-radius: 50%;
-  border: 4px solid ${props => props.theme.clockBorder};
-  background: ${props => props.theme.clockFace};
-  position: relative;
-  box-shadow: 0 10px 30px ${props => props.theme.cardShadow};
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 1rem auto; /* Reduced margin */
+  margin: 1rem auto;
+  perspective: 1000px;
   flex-shrink: 0;
   flex-grow: 0;
-  transform-origin: center center;
-  transition: all 0.3s ease;
+  cursor: pointer;
 
   @media (max-width: 380px) {
     transform: scale(0.75);
@@ -27,16 +19,68 @@ const ClockContainer = styled.div`
     transform: scale(0.65);
     margin: 0 auto;
   }
+`;
+
+const ClockInner = styled.div`
+  position: relative;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  transition: transform 0.8s;
+  transform-style: preserve-3d;
+  transform: ${props => props.$flipped ? 'rotateY(180deg)' : 'rotateY(0deg)'};
+`;
+
+const ClockFace = styled.div`
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 4px solid ${props => props.theme.clockBorder};
+  background: ${props => props.theme.clockFace};
+  box-shadow: 0 10px 30px ${props => props.theme.cardShadow};
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden; /* Safari */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+const AnalogFace = styled(ClockFace)`
+  z-index: 2;
+  transform: translateZ(10px); /* Push front face out */
 
   &::after {
     content: '';
     position: absolute;
     width: 15px;
     height: 15px;
-    background: #c0392b; /* Constant red center pivot */
+    background: #c0392b; /* Red center pivot */
     border-radius: 50%;
     z-index: 10;
   }
+`;
+
+const DigitalFace = styled(ClockFace)`
+  transform: rotateY(180deg) translateZ(10px); /* Push back face out */
+  z-index: 1;
+`;
+
+const ThicknessLayer = styled.div`
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: ${props => props.theme.clockBorder};
+  transform-style: preserve-3d;
+  pointer-events: none; /* Let clicks pass through */
+`;
+
+const DigitalDisplay = styled.div`
+  font-size: 5rem;
+  font-weight: 700;
+  color: ${props => props.theme.clockNumber};
+  font-family: 'Courier New', Courier, monospace;
 `;
 
 const Mark = styled.div`
@@ -66,14 +110,16 @@ const HourHand = styled(Hand)`
   background: ${props => props.theme.clockHand};
   transform: translateX(-50%) rotate(${props => props.angle}deg);
   z-index: 5;
+  transition: transform 0.5s cubic-bezier(0.4, 2.08, 0.55, 0.44), background 0.3s ease;
 `;
 
 const MinuteHand = styled(Hand)`
   width: 4px;
   height: 110px;
-  background: ${props => props.theme.clockMinuteHand}; /* Dark grey */
+  background: ${props => props.theme.clockMinuteHand};
   transform: translateX(-50%) rotate(${props => props.angle}deg);
   z-index: 6;
+  transition: transform 0.5s cubic-bezier(0.4, 2.08, 0.55, 0.44), background 0.3s ease;
 `;
 
 const ClockNumber = styled.div`
@@ -95,6 +141,8 @@ const ClockNumber = styled.div`
 `;
 
 const Clock = ({ hour, minute }) => {
+  const [showDigital, setShowDigital] = React.useState(false);
+
   // Convert 12h to proper angle including minute offset
   const hourAngle = (hour % 12) * 30 + (minute / 2);
   const minuteAngle = minute * 6;
@@ -107,9 +155,6 @@ const Clock = ({ hour, minute }) => {
 
   const numbers = [];
   for (let i = 1; i <= 12; i++) {
-    // Radius for numbers. Max radius 146px.
-    // Marks length 15px. End at 131px.
-    // Number radius 115px -> Edge at 130px.
     const r = 115;
     const rad = (i * 30) * (Math.PI / 180);
     const x = r * Math.sin(rad);
@@ -122,13 +167,29 @@ const Clock = ({ hour, minute }) => {
     );
   }
 
+  // Generate thickness layers to simulate volume
+  const thicknessLayers = [];
+  for (let z = -9; z < 10; z += 1) {
+    thicknessLayers.push(<ThicknessLayer key={z} style={{ transform: `translateZ(${z}px)` }} />);
+  }
+
   return (
-    <ClockContainer>
-      {marks}
-      {numbers}
-      <HourHand angle={hourAngle} />
-      <MinuteHand angle={minuteAngle} />
-    </ClockContainer>
+    <ClockWrapper onClick={() => setShowDigital(!showDigital)}>
+      <ClockInner $flipped={showDigital}>
+        {thicknessLayers}
+        <AnalogFace>
+          {marks}
+          {numbers}
+          <HourHand angle={hourAngle} />
+          <MinuteHand angle={minuteAngle} />
+        </AnalogFace>
+        <DigitalFace>
+          <DigitalDisplay>
+            {hour.toString().padStart(2, '0')}:{minute.toString().padStart(2, '0')}
+          </DigitalDisplay>
+        </DigitalFace>
+      </ClockInner>
+    </ClockWrapper>
   );
 };
 
