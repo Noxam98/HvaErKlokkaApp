@@ -29,15 +29,16 @@ const AppContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  overflow-x: hidden;
+  /* overflow-x: hidden; Removed to allow SVG overlap */
 
   @media (max-width: 768px) {
     width: 100%;
     max-width: 100%;
     padding: 0.5rem;
-    height: 100vh;
-    justify-content: center; /* Changed from space-evenly */
+    min-height: 100vh; /* Ensure full height */
+    justify-content: center;
     gap: 1rem;
+    overflow-x: visible; /* Explicitly visible */
   }
 `;
 
@@ -102,8 +103,7 @@ function App() {
         {isDarkMode ? '☀️' : '🌙'}
       </ThemeToggle>
       <AppContainer>
-        <Header>Lær Klokka</Header>
-        <SubHeader>Hva er klokka på norsk?</SubHeader>
+        <Header>Hva er klokka på norsk?</Header>
 
         <Clock hour={currentTime.hour} minute={currentTime.minute} />
 

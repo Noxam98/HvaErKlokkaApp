@@ -4,7 +4,7 @@ import styled from 'styled-components';
 const ClockWrapper = styled.div`
   width: 300px;
   height: 300px;
-  margin: 1rem auto;
+  margin: 3rem auto; /* Increased margin for outside hints */
   perspective: 1000px;
   flex-shrink: 0;
   flex-grow: 0;
@@ -12,7 +12,7 @@ const ClockWrapper = styled.div`
 
   @media (max-width: 380px) {
     transform: scale(0.75);
-    margin: 0.5rem auto;
+    margin: 1.5rem auto; /* Adjusted for scale */
   }
   
   @media (max-width: 340px) {
@@ -46,19 +46,38 @@ const ClockFace = styled.div`
   align-items: center;
 `;
 
+const PivotButton = styled.button`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #c0392b;
+  border: 2px solid #fff; 
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+  z-index: 20;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  font-size: 12px;
+  transition: transform 0.2s;
+
+  &:hover {
+    transform: translate(-50%, -50%) scale(1.2);
+  }
+  
+  &:active {
+    transform: translate(-50%, -50%) scale(0.95);
+  }
+`;
+
 const AnalogFace = styled(ClockFace)`
   z-index: 2;
   transform: translateZ(10px); /* Push front face out */
-
-  &::after {
-    content: '';
-    position: absolute;
-    width: 15px;
-    height: 15px;
-    background: #c0392b; /* Red center pivot */
-    border-radius: 50%;
-    z-index: 10;
-  }
 `;
 
 const DigitalFace = styled(ClockFace)`
@@ -140,8 +159,119 @@ const ClockNumber = styled.div`
   transition: color 0.3s ease;
 `;
 
+const StyledHintSVG = styled.svg`
+  position: absolute;
+  top: -50px;
+  left: -50px;
+  pointer-events: none;
+  z-index: 0;
+  overflow: visible;
+  transform-origin: center;
+  transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); /* Elastic pop effect */
+  opacity: ${props => props.$show ? 1 : 0};
+  transform: ${props => props.$show ? 'scale(1)' : 'scale(0.7)'};
+`;
+
+const HintOverlay = ({ show }) => {
+  const cx = 200, cy = 200;
+  const rInner = 158; // Start just outside the clock (150px + border + padding)
+  const rOuter = 195; // Outer edge of the hint ring
+  const rText = 176;  // Center text in the ring
+
+  const polarToCartesian = (centerX, centerY, radius, angleInDegrees) => {
+    const angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0;
+    return {
+      x: centerX + (radius * Math.cos(angleInRadians)),
+      y: centerY + (radius * Math.sin(angleInRadians))
+    };
+  };
+
+  // Create a donut slice path
+  const describeSector = (x, y, innerR, outerR, startAngle, endAngle) => {
+    // Add gap
+    const gap = 1.0; // Small visual gap between colored zones
+    const start = startAngle + gap;
+    const end = endAngle - gap;
+
+    const startOuter = polarToCartesian(x, y, outerR, end);
+    const endOuter = polarToCartesian(x, y, outerR, start);
+    const startInner = polarToCartesian(x, y, innerR, end);
+    const endInner = polarToCartesian(x, y, innerR, start);
+
+    const largeArcFlag = end - start <= 180 ? "0" : "1";
+
+    return [
+      "M", startOuter.x, startOuter.y,
+      "A", outerR, outerR, 0, largeArcFlag, 0, endOuter.x, endOuter.y,
+      "L", endInner.x, endInner.y,
+      "A", innerR, innerR, 0, largeArcFlag, 1, startInner.x, startInner.y,
+      "Z"
+    ].join(" ");
+  };
+
+  // Helper for text positioning
+  const getTextPos = (angle) => polarToCartesian(cx, cy, rText, angle);
+
+  // Text Positions
+  const posOver = getTextPos(45);
+  const posPaHalv = getTextPos(135);
+  const posOverHalv = getTextPos(225);
+  const posPa = getTextPos(315);
+
+  const posKvartOver = getTextPos(90);
+  const posHalv = getTextPos(180);
+  const posKvartPa = getTextPos(270);
+
+  // Marker half-width in degrees
+  const markerW = 6;
+
+  return (
+    <StyledHintSVG
+      width="400" height="400" viewBox="0 0 400 400"
+      $show={show}
+    >
+      {/* === MAIN ZONES === */}
+      {/* Over: 0 -> 90-w */}
+      <path d={describeSector(cx, cy, rInner, rOuter, 0, 90 - markerW)} fill="rgba(46, 204, 113, 0.4)" />
+      <text x={posOver.x} y={posOver.y} fill="#fff" fontSize="13" fontWeight="bold" textAnchor="middle" dominantBaseline="middle" transform={`rotate(45, ${posOver.x}, ${posOver.y})`}>OVER</text>
+
+      {/* På Halv: 90+w -> 180-w */}
+      <path d={describeSector(cx, cy, rInner, rOuter, 90 + markerW, 180 - markerW)} fill="rgba(241, 196, 15, 0.4)" />
+      <text x={posPaHalv.x} y={posPaHalv.y} fill="#fff" fontSize="13" fontWeight="bold" textAnchor="middle" dominantBaseline="middle" transform={`rotate(315, ${posPaHalv.x}, ${posPaHalv.y})`}>PÅ HALV</text>
+
+      {/* Over Halv: 180+w -> 270-w */}
+      <path d={describeSector(cx, cy, rInner, rOuter, 180 + markerW, 270 - markerW)} fill="rgba(230, 126, 34, 0.4)" />
+      <text x={posOverHalv.x} y={posOverHalv.y} fill="#fff" fontSize="13" fontWeight="bold" textAnchor="middle" dominantBaseline="middle" transform={`rotate(45, ${posOverHalv.x}, ${posOverHalv.y})`}>OVER HALV</text>
+
+      {/* På: 270+w -> 360 */}
+      <path d={describeSector(cx, cy, rInner, rOuter, 270 + markerW, 360)} fill="rgba(231, 76, 60, 0.4)" />
+      <text x={posPa.x} y={posPa.y} fill="#fff" fontSize="13" fontWeight="bold" textAnchor="middle" dominantBaseline="middle" transform={`rotate(315, ${posPa.x}, ${posPa.y})`}>PÅ</text>
+
+      {/* === MARKER ZONES (Wedges) === */}
+      {/* Kvart Over (90 +/- w) */}
+      <path d={describeSector(cx, cy, rInner, rOuter, 90 - markerW, 90 + markerW)} fill="#3498db" />
+      <text x={posKvartOver.x} y={posKvartOver.y}
+        fill="#fff" fontSize="10" fontWeight="bold" textAnchor="middle" dominantBaseline="middle"
+        transform={`rotate(0, ${posKvartOver.x}, ${posKvartOver.y})`}>KVART</text>
+
+      {/* Halv (180 +/- w) */}
+      <path d={describeSector(cx, cy, rInner, rOuter, 180 - markerW, 180 + markerW)} fill="#3498db" />
+      <text x={posHalv.x} y={posHalv.y}
+        fill="#fff" fontSize="10" fontWeight="bold" textAnchor="middle" dominantBaseline="middle"
+        transform={`rotate(0, ${posHalv.x}, ${posHalv.y})`}>HALV</text>
+
+      {/* Kvart På (270 +/- w) */}
+      <path d={describeSector(cx, cy, rInner, rOuter, 270 - markerW, 270 + markerW)} fill="#3498db" />
+      <text x={posKvartPa.x} y={posKvartPa.y}
+        fill="#fff" fontSize="10" fontWeight="bold" textAnchor="middle" dominantBaseline="middle"
+        transform={`rotate(0, ${posKvartPa.x}, ${posKvartPa.y})`}>KVART</text>
+    </StyledHintSVG>
+  );
+};
+
 const Clock = ({ hour, minute }) => {
   const [showDigital, setShowDigital] = React.useState(false);
+  const [showHints, setShowHints] = React.useState(false);
 
   // Convert 12h to proper angle including minute offset
   const hourAngle = (hour % 12) * 30 + (minute / 2);
@@ -174,21 +304,31 @@ const Clock = ({ hour, minute }) => {
   }
 
   return (
-    <ClockWrapper onClick={() => setShowDigital(!showDigital)}>
-      <ClockInner $flipped={showDigital}>
-        {thicknessLayers}
-        <AnalogFace>
-          {marks}
-          {numbers}
-          <HourHand angle={hourAngle} />
-          <MinuteHand angle={minuteAngle} />
-        </AnalogFace>
-        <DigitalFace>
-          <DigitalDisplay>
-            {hour.toString().padStart(2, '0')}:{minute.toString().padStart(2, '0')}
-          </DigitalDisplay>
-        </DigitalFace>
-      </ClockInner>
+    <ClockWrapper>
+      {/* HintOverlay Moved Here - Static behind the flip card */}
+      <HintOverlay show={showHints && !showDigital} />
+
+      <div onClick={() => setShowDigital(!showDigital)} style={{ width: '100%', height: '100%' }}>
+        <ClockInner $flipped={showDigital}>
+          {thicknessLayers}
+
+          <AnalogFace>
+            {marks}
+            {numbers}
+            <HourHand angle={hourAngle} />
+            <MinuteHand angle={minuteAngle} />
+            {/* Interactive Pivot Button */}
+            <PivotButton onClick={(e) => { e.stopPropagation(); setShowHints(!showHints); }}>
+              💡
+            </PivotButton>
+          </AnalogFace>
+          <DigitalFace>
+            <DigitalDisplay>
+              {hour.toString().padStart(2, '0')}:{minute.toString().padStart(2, '0')}
+            </DigitalDisplay>
+          </DigitalFace>
+        </ClockInner>
+      </div>
     </ClockWrapper>
   );
 };
