@@ -11,7 +11,7 @@ export const hours = [
 
 // Minutes user can select (as words)
 export const minutes = [
-    "fem", "ti", "kvart", "tjue", "halv"
+    "fem", "ti", "kvart", "halv"
 ];
 
 export const prepositions = ["over", "på"];

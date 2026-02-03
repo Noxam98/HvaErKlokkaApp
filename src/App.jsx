@@ -1,55 +1,81 @@
 import React, { useEffect } from 'react';
-import styled, { createGlobalStyle } from 'styled-components';
+import styled, { createGlobalStyle, ThemeProvider } from 'styled-components';
 import Clock from './components/Clock';
 import Controls from './components/Controls';
 import useGameStore from './store/useGameStore';
+import { lightTheme, darkTheme } from './theme';
 
 const GlobalStyle = createGlobalStyle`
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
   body {
     margin: 0;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    background: #f0f2f5;
-    color: #333;
+    background: ${props => props.theme.background};
+    color: ${props => props.theme.text};
     display: flex;
     justify-content: center;
     min-height: 100vh;
+    transition: background 0.3s ease, color 0.3s ease;
   }
 `;
 
 const AppContainer = styled.div`
   width: 100%;
   max-width: 600px;
-  padding: 2rem;
+  padding: 1rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-  overflow-x: hidden; /* Prevent horizontal scroll */
+  overflow-x: hidden;
 
-  @media (max-width: 480px) {
-    padding: 1rem 0.5rem; /* Less padding on sides */
+  @media (max-width: 768px) {
+    width: 100%;
+    max-width: 100%;
+    padding: 0.5rem;
+    height: 100vh;
+    justify-content: center; /* Changed from space-evenly */
+    gap: 1rem;
   }
 `;
 
 const Header = styled.h1`
   font-size: 2rem;
-  color: #2c3e50;
+  color: ${props => props.theme.header};
   margin-bottom: 0;
   text-align: center;
+  transition: color 0.3s ease;
 
   @media (max-width: 480px) {
-    font-size: 1.5rem;
+    font-size: 1.2rem;
+    margin-top: 0.5rem;
   }
 `;
 
 const SubHeader = styled.p`
-  color: #7f8c8d;
+  color: ${props => props.theme.subHeader};
   margin-bottom: 2rem;
   text-align: center;
+  transition: color 0.3s ease;
   
   @media (max-width: 480px) {
-    margin-bottom: 1rem;
-    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.8rem;
+    margin-top: 0;
   }
+`;
+
+const ThemeToggle = styled.button`
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: ${props => props.theme.text};
 `;
 
 const DebugInfo = styled.div`
@@ -63,15 +89,18 @@ const DebugInfo = styled.div`
 `;
 
 function App() {
-  const { currentTime, initializeGame, correctPhrase } = useGameStore();
+  const { currentTime, initializeGame, correctPhrase, isDarkMode, toggleTheme } = useGameStore();
 
   useEffect(() => {
     initializeGame();
   }, []);
 
   return (
-    <>
+    <ThemeProvider theme={isDarkMode ? darkTheme : lightTheme}>
       <GlobalStyle />
+      <ThemeToggle onClick={toggleTheme}>
+        {isDarkMode ? '☀️' : '🌙'}
+      </ThemeToggle>
       <AppContainer>
         <Header>Lær Klokka</Header>
         <SubHeader>Hva er klokka på norsk?</SubHeader>
@@ -85,7 +114,7 @@ function App() {
             Fasit: {correctPhrase.join(' ')}
         </DebugInfo> */}
       </AppContainer>
-    </>
+    </ThemeProvider>
   );
 }
 

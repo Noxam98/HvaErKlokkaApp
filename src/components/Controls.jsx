@@ -6,80 +6,90 @@ import { hours, minutes, prepositions } from '../utils/timeUtils';
 const ControlsContainer = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  align-items: center; /* Center children horizontally */
+  gap: 0.5rem;
   width: 100%;
   max-width: 500px;
   margin: 0 auto;
+
+  @media (max-width: 768px) {
+    max-width: 100%;
+  }
 `;
 
 const SentenceDisplay = styled.div`
-  min-height: 60px;
-  background: white;
+  min-height: 40px;
+  background: ${props => props.theme.cardBg};
   border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 1rem;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-  font-size: 1.5rem;
+  padding: 0.5rem;
+  box-shadow: 0 4px 6px ${props => props.theme.cardShadow};
+  font-size: 1.2rem;
   font-weight: 600;
-  color: #2c3e50;
+  color: ${props => props.theme.text};
+  transition: all 0.3s ease;
 
   @media (max-width: 480px) {
-    min-height: 50px;
-    padding: 0.8rem;
-    font-size: 1.2rem;
-    margin-bottom: 0.5rem;
+    min-height: 40px;
+    padding: 0.5rem;
+    font-size: 1rem;
+    margin-bottom: 0.2rem;
   }
 `;
 
-const Word = styled.span`
-  background: #ecf0f1;
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  animation: fadeIn 0.3s ease;
+// ... Word ...
 
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
+const MainGrid = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  width: 100%;
 `;
 
-const OptionsGrid = styled.div`
+const Section = styled.div`
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0.8rem;
+  gap: 0.4rem;
+  width: 100%;
+  margin-bottom: 0.2rem;
+`;
 
-  @media (max-width: 400px) {
-    grid-template-columns: repeat(2, 1fr);
-  }
+const CategoryLabel = styled.div`
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: ${props => props.theme.subHeader};
+  margin-top: 0.2rem;
+  margin-bottom: 0.1rem;
+  font-weight: 600;
 `;
 
 const Button = styled.button`
-  background: #3498db;
-  color: white;
+  background: ${props => props.theme.buttonBg};
+  color: ${props => props.theme.buttonText};
   border: none;
-  padding: 1rem;
-  border-radius: 12px;
-  font-size: 1.1rem;
+  padding: 0.8rem;
+  border-radius: 8px;
+  font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
-  box-shadow: 0 4px 0 #2980b9;
+  box-shadow: 0 2px 0 ${props => props.theme.buttonShadow};
 
   @media (max-width: 400px) {
-    padding: 0.8rem;
-    font-size: 1rem;
+    padding: 0.5rem;
+    font-size: 0.9rem;
   }
 
   &:active {
     transform: translateY(4px);
-    box-shadow: 0 0 0 #2980b9;
+    box-shadow: none;
   }
 
   &:hover {
-    background: #5dade2;
+    background: ${props => props.theme.buttonHover};
   }
 
   &:disabled {
@@ -89,6 +99,22 @@ const Button = styled.button`
     transform: none;
   }
 `;
+
+const Word = styled.span`
+  background: ${props => props.theme.wordBg};
+  color: ${props => props.theme.wordText};
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  animation: fadeIn 0.3s ease;
+  transition: all 0.3s ease;
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+`;
+
+
 
 const ActionButton = styled(Button)`
   background: #27ae60;
@@ -108,66 +134,22 @@ const Feedback = styled.div`
   font-weight: bold;
 `;
 
+const SecondaryButton = styled(Button)`
+  background: ${props => props.theme.secondaryButtonBg};
+  box-shadow: 0 4px 0 rgba(0,0,0,0.2);
+
+  &:hover {
+    background: ${props => props.theme.secondaryButtonHover};
+  }
+`;
+
 const Controls = () => {
-  const { userSentence, correctPhrase, addWord, gameState, resetGame } = useGameStore();
+  const { userSentence, userSelection, addWord, gameState, resetGame } = useGameStore();
 
   const handleWordClick = (word) => {
     if (gameState !== 'PLAYING') return;
     addWord(word);
   };
-
-  // Determine which options to show based on what we expect next
-  // This is a heuristic to match the "Guided" feel
-  const getOptions = () => {
-    if (gameState === 'WON') return [];
-
-    const nextIndex = userSentence.length;
-    const expected = correctPhrase[nextIndex];
-
-    if (!expected) return []; // Should be won
-
-    // Logic:
-    // If expected is a Preposition -> Show prepositions
-    if (prepositions.includes(expected)) {
-      return prepositions;
-    }
-
-    // If expected is "halv" -> Show "halv" and maybe hours/minutes as distractors?
-    // Or if "halv" is the START (30 min), it's a "Minute" conceptually in this game logic?
-    if (expected === 'halv') {
-      // If it's the first word, mix with minutes
-      if (nextIndex === 0) return minutes;
-      // If it's after "på" or "over", user might expect an Hour next, but "halv" comes first.
-      // Show "Only Halv"? Or Mix with Hours?
-      // Let's mix with Hours to prevent just clicking the only option
-      return ['halv', ...hours.slice(0, 5)]; // Randomized?
-    }
-
-    // If expected is a number/minute (start of sentence) -> Show minutes
-    if (minutes.includes(expected) && nextIndex === 0) {
-      return minutes;
-    }
-
-    // If expected is hour -> Show hours
-    if (hours.includes(expected)) {
-      return hours;
-    }
-
-    // Fallback: Show all unique relevant words?
-    // Start with Minutes if empty
-    if (nextIndex === 0) return minutes;
-
-    // If we just picked a minute, usually Preposition follows
-
-    // If we have nothing specific, just show what expected + checks
-    // Simplest: Show the category of the Expected word + distractors from same category
-    if (minutes.includes(expected)) return minutes;
-    if (hours.includes(expected)) return hours;
-
-    return hours; // Default
-  };
-
-  const currentOptions = getOptions();
 
   return (
     <ControlsContainer>
@@ -182,17 +164,32 @@ const Controls = () => {
         {gameState === 'WON' && "Riktig!"}
       </Feedback>
 
-      <OptionsGrid>
-        {gameState === 'PLAYING' && currentOptions.map((word) => (
-          <Button key={word} onClick={() => handleWordClick(word)}>
-            {word}
-          </Button>
-        ))}
+      <MainGrid>
+        {/* Prepositions & Specials */}
+        <CategoryLabel>Ord</CategoryLabel>
+        <Section style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
+          {/* Prepositions */}
+          {prepositions.map(word => (
+            <SecondaryButton key={word} onClick={() => handleWordClick(word)}>{word}</SecondaryButton>
+          ))}
+          {/* Specials */}
+          {["kvart", "halv"].map(word => (
+            <SecondaryButton key={word} onClick={() => handleWordClick(word)}>{word}</SecondaryButton>
+          ))}
+        </Section>
+
+        {/* Minutes / Numbers / Hours (1-12) */}
+        <CategoryLabel>Tall / Timer</CategoryLabel>
+        <Section style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
+          {hours.map(word => (
+            <Button key={word} onClick={() => handleWordClick(word)}>{word}</Button>
+          ))}
+        </Section>
 
         {gameState === 'WON' && (
           <ActionButton onClick={resetGame}>Neste oppgave</ActionButton>
         )}
-      </OptionsGrid>
+      </MainGrid>
     </ControlsContainer>
   );
 };
