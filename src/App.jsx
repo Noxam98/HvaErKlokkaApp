@@ -1,10 +1,11 @@
 import React, { useEffect } from 'react';
 import styled, { createGlobalStyle, ThemeProvider } from 'styled-components';
 import confetti from 'canvas-confetti';
-import { FaTelegram, FaEnvelope, FaExpand, FaSun, FaMoon } from 'react-icons/fa';
+import { FaTelegram, FaEnvelope, FaExpand, FaSun, FaMoon, FaQuestionCircle } from 'react-icons/fa';
 import Clock from './components/Clock';
 import Controls from './components/Controls';
 import ScoreBoard from './components/ScoreBoard';
+import TutorialController from './components/Tutorial/TutorialController';
 import useGameStore from './store/useGameStore';
 import { lightTheme, darkTheme } from './theme';
 import { CLOCK_CONFIG } from './components/Clock/ClockConfig';
@@ -53,10 +54,15 @@ const HeaderSide = styled.div`
   align-items: flex-start;
   gap: 0.2rem;
   flex: 1;
-  
-  &:last-child {
-    align-items: flex-end;
-  }
+`;
+
+const HeaderActionsWrapper = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  flex: 1;
+  align-items: center;
 `;
 
 const ContactIcons = styled.div`
@@ -222,8 +228,9 @@ function App() {
   return (
     <ThemeProvider theme={isDarkMode ? darkTheme : lightTheme}>
       <GlobalStyle />
+      <TutorialController />
       <Header>
-        <HeaderSide>
+        <HeaderSide id="contacts-section">
           <ContactLabel>Kontakt:</ContactLabel>
           <ContactIcons>
             <IconLink href="https://t.me/progtt" target="_blank" rel="noopener noreferrer" title="Telegram: @progtt">
@@ -236,25 +243,30 @@ function App() {
         </HeaderSide>
 
         <HeaderCenter>
-          <ScoreBoard />
+          <div id="score-board">
+            <ScoreBoard />
+          </div>
         </HeaderCenter>
 
-        <HeaderSide>
+        <HeaderActionsWrapper id="header-actions">
+          <IconButton onClick={() => window.dispatchEvent(new Event('restart-tutorial'))} title="Start omvisning på nytt">
+            <FaQuestionCircle />
+          </IconButton>
           <IconButton onClick={toggleFullscreen} title="Fullskjerm">
             <FaExpand />
           </IconButton>
           <IconButton onClick={toggleTheme} title="Bytt tema">
             {isDarkMode ? <FaSun /> : <FaMoon />}
           </IconButton>
-        </HeaderSide>
+        </HeaderActionsWrapper>
       </Header>
 
-      <AppContainer>
-        <ClockWrapper>
+      <AppContainer id="welcome-step">
+        <ClockWrapper id="clock-wrapper">
           <Clock hour={currentTime.hour} minute={currentTime.minute} />
         </ClockWrapper>
 
-        <ControlsWrapper>
+        <ControlsWrapper id="controls-container">
           <Controls />
         </ControlsWrapper>
       </AppContainer>

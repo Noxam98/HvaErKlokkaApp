@@ -55,7 +55,7 @@ const Clock = ({ hour, minute }) => {
             {/* HintOverlay - scales with clock automatically via viewBox */}
             <HintOverlay show={showHints && !showDigital} />
 
-            <div onClick={() => setShowDigital(!showDigital)} style={{ width: '100%', height: '100%' }}>
+            <div id="clock-face" onClick={() => setShowDigital(!showDigital)} style={{ width: '100%', height: '100%' }}>
                 <ClockInner $flipped={showDigital}>
                     {thicknessLayers}
 
@@ -65,7 +65,7 @@ const Clock = ({ hour, minute }) => {
                         <HourHand angle={hourAngle} />
                         <MinuteHand angle={minuteAngle} />
                         {/* Interactive Pivot Button */}
-                        <PivotButton onClick={(e) => { e.stopPropagation(); setShowHints(!showHints); }}>
+                        <PivotButton id="clock-pivot" onClick={(e) => { e.stopPropagation(); setShowHints(!showHints); }}>
                             💡
                         </PivotButton>
                     </AnalogFace>
