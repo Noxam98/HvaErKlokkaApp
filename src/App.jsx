@@ -1,7 +1,9 @@
 import React, { useEffect } from 'react';
 import styled, { createGlobalStyle, ThemeProvider } from 'styled-components';
+import confetti from 'canvas-confetti';
 import Clock from './components/Clock';
 import Controls from './components/Controls';
+import ScoreBoard from './components/ScoreBoard';
 import useGameStore from './store/useGameStore';
 import { lightTheme, darkTheme } from './theme';
 
@@ -25,55 +27,31 @@ const GlobalStyle = createGlobalStyle`
 const AppContainer = styled.div`
   width: 100%;
   max-width: 600px;
-  padding: 1rem;
+  height: 100vh; /* Fallback */
+  height: 100svh; /* Small viewport height - more stable on mobile */
+  padding: 0.5rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-  /* overflow-x: hidden; Removed to allow SVG overlap */
+  gap: 0.5rem;
+  overflow: hidden;
 
   @media (max-width: 768px) {
     width: 100%;
     max-width: 100%;
-    padding: 0.5rem;
-    min-height: 100vh; /* Ensure full height */
-    justify-content: center;
-    gap: 1rem;
-    overflow-x: visible; /* Explicitly visible */
-  }
-`;
-
-const Header = styled.h1`
-  font-size: 2rem;
-  color: ${props => props.theme.header};
-  margin-bottom: 0;
-  text-align: center;
-  transition: color 0.3s ease;
-
-  @media (max-width: 480px) {
-    font-size: 1.2rem;
-    margin-top: 0.5rem;
-  }
-`;
-
-const SubHeader = styled.p`
-  color: ${props => props.theme.subHeader};
-  margin-bottom: 2rem;
-  text-align: center;
-  transition: color 0.3s ease;
-  
-  @media (max-width: 480px) {
-    margin-bottom: 0.5rem;
-    font-size: 0.8rem;
-    margin-top: 0;
+    padding: 0.2rem;
+    height: 100svh;
+    justify-content: flex-start;
+    gap: 0.5rem;
   }
 `;
 
 const HeaderControls = styled.div`
   position: absolute;
-  top: 1rem;
-  right: 1rem;
+  top: 0.5rem;
+  right: 0.5rem;
   display: flex;
-  gap: 1rem;
+  gap: 0.5rem;
   z-index: 100;
 `;
 
@@ -102,11 +80,21 @@ const DebugInfo = styled.div`
 `;
 
 function App() {
-  const { currentTime, initializeGame, correctPhrase, isDarkMode, toggleTheme } = useGameStore();
+  const { currentTime, initializeGame, correctPhrase, isDarkMode, toggleTheme, gameState } = useGameStore();
 
   useEffect(() => {
     initializeGame();
   }, []);
+
+  useEffect(() => {
+    if (gameState === 'WON') {
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 }
+      });
+    }
+  }, [gameState]);
 
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
@@ -132,7 +120,9 @@ function App() {
         </IconButton>
       </HeaderControls>
       <AppContainer>
-        <Header>Hva er klokka på norsk?</Header>
+
+
+        <ScoreBoard />
 
         <Clock hour={currentTime.hour} minute={currentTime.minute} />
 

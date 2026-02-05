@@ -3,7 +3,7 @@ import styled from 'styled-components';
 export const ClockWrapper = styled.div`
   width: 300px;
   height: 300px;
-  margin: 3rem auto; /* Increased margin for outside hints */
+  margin: 0 auto; /* No top/bottom margin */
   perspective: 1000px;
   flex-shrink: 0;
   flex-grow: 0;
@@ -11,7 +11,7 @@ export const ClockWrapper = styled.div`
 
   @media (max-width: 380px) {
     transform: scale(0.75);
-    margin: 1.5rem auto; /* Adjusted for scale */
+    margin: 0.2rem auto; /* Adjusted for scale */
   }
   
   @media (max-width: 340px) {
