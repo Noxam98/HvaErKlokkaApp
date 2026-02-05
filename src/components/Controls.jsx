@@ -96,6 +96,8 @@ const MainGrid = styled.div`
   width: 100%;
   flex: 1;
   min-height: 0;
+  max-height: 260px;
+
 `;
 
 const Section = styled.div`

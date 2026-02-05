@@ -24,14 +24,15 @@ const shimmer = keyframes`
 
 const BoardContainer = styled.div`
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
+  gap: 2rem;
   width: 100%;
   max-width: 500px;
   background: ${props => props.theme.cardBg};
   padding: 0.5rem 1rem;
   border-radius: 12px;
   box-shadow: 0 4px 6px ${props => props.theme.cardShadow};
-  margin-bottom: 0; /* No gap before clock */
+  margin-bottom: 0;
   color: ${props => props.theme.text};
   transition: all 0.3s ease;
 
@@ -45,13 +46,10 @@ const StatBox = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  flex: 1;
   
-  /* Add divider line between sections */
   &:not(:last-child) {
     border-right: 1px solid ${props => props.theme.divider || 'rgba(128, 128, 128, 0.3)'};
-    padding-right: 0.5rem;
-    margin-right: 0.5rem;
+    padding-right: 2rem;
   }
 `;
 
@@ -61,12 +59,14 @@ const Label = styled.span`
   color: ${props => props.theme.subHeader};
   font-weight: 600;
   letter-spacing: 1px;
+  text-align: center;
+  width: 100%;
 `;
 
 const Value = styled.span`
   font-size: 1.5rem;
   font-weight: 700;
-  color: ${props => props.theme.header}; /* Use header color for visibility */
+  color: ${props => props.theme.header};
   transition: transform 0.2s;
 
   ${props => props.$changed && css`
@@ -75,19 +75,21 @@ const Value = styled.span`
 `;
 
 const StreakFire = styled.span`
-  margin-left: 5px;
+  position: absolute;
+  right: -1.5rem;
   opacity: ${props => props.$active ? 1 : 0};
   transition: opacity 0.3s;
 `;
 
-const HighScoreWrapper = styled.div`
+const RecordWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
   white-space: nowrap;
+  position: relative;
 `;
 
-const HighScoreValue = styled.span`
+const RecordValue = styled.span`
   font-size: 1.5rem;
   font-weight: 700;
   transition: transform 0.2s;
@@ -117,28 +119,27 @@ const NewRecordBadge = styled.span`
 `;
 
 const ScoreBoard = () => {
-  const { score, streak, highScore, isNewRecord } = useGameStore();
+  const { streak, bestStreak, isNewRecord } = useGameStore();
 
   return (
     <BoardContainer $newRecord={isNewRecord}>
       <StatBox>
-        <Label>Poeng</Label>
-        <Value key={score} $changed={true}>{score}</Value>
-      </StatBox>
-      <StatBox>
         <Label>Streak</Label>
-        <Value key={streak} $changed={true}>
-          {streak} <StreakFire $active={streak > 2}>🔥</StreakFire>
-        </Value>
+        <RecordWrapper>
+          <Value key={streak} $changed={true}>
+            {streak}
+          </Value>
+          <StreakFire $active={streak > 2}>🔥</StreakFire>
+        </RecordWrapper>
       </StatBox>
       <StatBox>
         <Label>🏆 Rekord</Label>
-        <HighScoreWrapper>
-          <HighScoreValue key={highScore} $isNew={isNewRecord}>
-            {highScore}
-          </HighScoreValue>
+        <RecordWrapper>
+          <RecordValue key={bestStreak} $isNew={isNewRecord}>
+            {bestStreak}
+          </RecordValue>
           {isNewRecord && <NewRecordBadge>Ny!</NewRecordBadge>}
-        </HighScoreWrapper>
+        </RecordWrapper>
       </StatBox>
     </BoardContainer>
   );
