@@ -1,5 +1,6 @@
 import React from 'react';
 import styled, { keyframes, css } from 'styled-components';
+import { FaFire, FaTrophy } from 'react-icons/fa';
 import useGameStore from '../store/useGameStore';
 
 const pop = keyframes`
@@ -25,14 +26,13 @@ const shimmer = keyframes`
 const BoardContainer = styled.div`
   display: flex;
   justify-content: center;
-  gap: 2rem;
-  width: 100%;
-  max-width: 500px;
-  background: ${props => props.theme.cardBg};
-  padding: 0.5rem 1rem;
+  align-items: center;
+  gap: 1.5rem;
+  background: ${props => props.theme.scoreboardBg || props.theme.cardBg};
+  border: 2px solid ${props => props.theme.scoreboardBorder || props.theme.primary || '#667eea'};
+  padding: 0.3rem 1rem;
   border-radius: 12px;
-  box-shadow: 0 4px 6px ${props => props.theme.cardShadow};
-  margin-bottom: 0;
+  box-shadow: 0 2px 4px ${props => props.theme.cardShadow};
   color: ${props => props.theme.text};
   transition: all 0.3s ease;
 
@@ -40,6 +40,11 @@ const BoardContainer = styled.div`
     animation: ${glow} 1s ease-in-out 3;
     border: 2px solid #ffd700;
   `}
+
+  @media (max-width: 768px) {
+    gap: 1rem;
+    padding: 0.2rem 0.5rem;
+  }
 `;
 
 const StatBox = styled.div`
@@ -49,7 +54,13 @@ const StatBox = styled.div`
   
   &:not(:last-child) {
     border-right: 1px solid ${props => props.theme.divider || 'rgba(128, 128, 128, 0.3)'};
-    padding-right: 2rem;
+    padding-right: 1.5rem;
+  }
+
+  @media (max-width: 768px) {
+    &:not(:last-child) {
+      padding-right: 1rem;
+    }
   }
 `;
 
@@ -61,6 +72,10 @@ const Label = styled.span`
   letter-spacing: 1px;
   text-align: center;
   width: 100%;
+
+  @media (min-width: 1024px) {
+    font-size: 1rem;
+  }
 `;
 
 const Value = styled.span`
@@ -129,11 +144,11 @@ const ScoreBoard = () => {
           <Value key={streak} $changed={true}>
             {streak}
           </Value>
-          <StreakFire $active={streak > 2}>🔥</StreakFire>
+          <StreakFire $active={streak > 2}><FaFire style={{ color: '#ff6b35' }} /></StreakFire>
         </RecordWrapper>
       </StatBox>
       <StatBox>
-        <Label>🏆 Rekord</Label>
+        <Label><FaTrophy style={{ marginRight: '4px', color: '#ffd700' }} /> Rekord</Label>
         <RecordWrapper>
           <RecordValue key={bestStreak} $isNew={isNewRecord}>
             {bestStreak}

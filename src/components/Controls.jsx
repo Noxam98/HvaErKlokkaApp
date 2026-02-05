@@ -92,19 +92,23 @@ const SentenceDisplay = styled.div`
 const MainGrid = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  gap: 0.5rem;
   width: 100%;
   flex: 1;
   min-height: 0;
   max-height: 260px;
 
+  /* Desktop: larger buttons need more space */
+  @media (min-width: 1024px) {
+    max-height: 400px;
+    gap: 0.5rem;
+  }
 `;
 
 const Section = styled.div`
   display: grid;
-  gap: 0.2rem;
+  gap: 0.5rem;
   width: 100%;
-  margin-bottom: 0.1rem;
   flex: 1;
   align-content: stretch;
 `;
@@ -139,6 +143,15 @@ const Button = styled.button`
     ? css`${shake} 0.5s`
     : css`${fadeInUp} 0.4s ease-out forwards`};
   animation-delay: ${props => props.$delay || '0s'};
+
+  /* Desktop: larger buttons */
+  @media (min-width: 1024px) {
+    padding: 0.8rem 1rem;
+    font-size: 1.1rem;
+    min-height: 56px;
+    border-radius: 10px;
+    box-shadow: 0 4px 0 ${props => props.$error ? '#c0392b' : props.theme.buttonShadow};
+  }
 
   @media (max-width: 400px) {
     padding: 0.4rem;
@@ -207,10 +220,14 @@ const Feedback = styled.div`
 
 const SecondaryButton = styled(Button)`
   background: ${props => props.$error ? '#e74c3c' : props.theme.secondaryButtonBg};
-  box-shadow: 0 4px 0 ${props => props.$error ? '#c0392b' : 'rgba(0,0,0,0.2)'};
+  box-shadow: 0 2px 0 ${props => props.$error ? '#c0392b' : props.theme.secondaryButtonShadow || '#6c3483'};
 
   &:hover {
     background: ${props => props.$error ? '#c0392b' : props.theme.secondaryButtonHover};
+  }
+
+  @media (min-width: 1024px) {
+    box-shadow: 0 4px 0 ${props => props.$error ? '#c0392b' : props.theme.secondaryButtonShadow || '#6c3483'};
   }
 `;
 
@@ -254,7 +271,7 @@ const Controls = () => {
           <>
             {/* Prepositions & Specials */}
             <CategoryLabel>Ord</CategoryLabel>
-            <Section style={{ gridTemplateColumns: 'repeat(4, 1fr)', flex: 1 }}>
+            <Section style={{ gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', flex: 1 }}>
               {prepositionWords.map((word, index) => (
                 <SecondaryButton
                   key={`${animationKey}-${word}`}
@@ -269,7 +286,7 @@ const Controls = () => {
 
             {/* Minutes / Numbers / Hours (1-12) */}
             <CategoryLabel>Tall / Timer</CategoryLabel>
-            <Section style={{ gridTemplateColumns: 'repeat(4, 1fr)', flex: 3 }}>
+            <Section style={{ gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', flex: 3 }}>
               {hours.map((word, index) => (
                 <Button
                   key={`${animationKey}-${word}`}

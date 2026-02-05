@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import HintOverlay from './HintOverlay';
+import { CLOCK_CONFIG } from './ClockConfig';
 import {
     ClockWrapper,
     ClockInner,
@@ -28,9 +29,10 @@ const Clock = ({ hour, minute }) => {
         marks.push(<Mark key={i} angle={i * 6} $isHour={isHour} />);
     }
 
+    // Numbers positioned using config radius
     const numbers = [];
     for (let i = 1; i <= 12; i++) {
-        const r = 115;
+        const r = CLOCK_CONFIG.numbers.radius;
         const rad = (i * 30) * (Math.PI / 180);
         const x = r * Math.sin(rad);
         const y = -r * Math.cos(rad);
@@ -50,7 +52,7 @@ const Clock = ({ hour, minute }) => {
 
     return (
         <ClockWrapper>
-            {/* HintOverlay Moved Here - Static behind the flip card */}
+            {/* HintOverlay - scales with clock automatically via viewBox */}
             <HintOverlay show={showHints && !showDigital} />
 
             <div onClick={() => setShowDigital(!showDigital)} style={{ width: '100%', height: '100%' }}>
