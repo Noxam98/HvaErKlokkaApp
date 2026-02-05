@@ -116,10 +116,10 @@ const IconButton = styled.button`
 `;
 
 /* Main layout */
+/* Main layout */
 const AppContainer = styled.div`
   width: 100%;
-  min-height: 100vh;
-  min-height: 100svh;
+  flex: 1; /* Take remaining space */
   padding: 1rem;
   display: flex;
   flex-direction: column;
@@ -138,7 +138,7 @@ const AppContainer = styled.div`
   }
 
   @media (max-width: 768px) {
-    padding: 0.5rem;
+    padding: 1rem 0.5rem;
     justify-content: flex-start;
     gap: 0.5rem;
   }
@@ -160,6 +160,11 @@ const ClockWrapper = styled.div`
     height: calc(400px + ${CLOCK_CONFIG.face.padding} * 2);
   }
   
+  @media (max-width: 768px) {
+    margin-top: auto; /* Push clock to bottom */
+    margin-bottom: 2rem; /* Space from 'Hva er klokka' */
+  }
+
   @media (max-width: 380px) {
     width: calc(240px + ${CLOCK_CONFIG.face.padding} * 2);
     height: calc(240px + ${CLOCK_CONFIG.face.padding} * 2);
@@ -179,9 +184,9 @@ const ControlsWrapper = styled.div`
   max-width: 400px;
   
   @media (max-width: 768px) {
-    flex: 1;
-    min-height: 0;
-    max-width: 100%;
+    width: 100%;
+    /* margin-top: auto; removed, clock handles push */
+    padding-bottom: 1rem;
   }
 `;
 
